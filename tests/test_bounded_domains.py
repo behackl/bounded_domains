@@ -43,6 +43,7 @@ def test_3x3_domain(request):
         Path(request.node.fspath).parent / "resources/3x3_elements_2d.txt",
         Path(request.node.fspath).parent / "resources/3x3_coords_2d.txt",
     )
+    assert repr(domain) == "PolygonalDomain(18 elements, 16 nodes)"
 
 
 def test_117x34_domain(request):
@@ -50,3 +51,4 @@ def test_117x34_domain(request):
         Path(request.node.fspath).parent / "resources/117x34_elements_2d.txt",
         Path(request.node.fspath).parent / "resources/117x34_coords_2d.txt",
     )
+    assert repr(domain) == "PolygonalDomain(7956 elements, 4130 nodes)"
