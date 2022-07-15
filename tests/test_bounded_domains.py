@@ -25,12 +25,12 @@ def test_map_construction_tiny():
         5: {2},
     }
     assert domain._adjacent_node_dict == {
-        0: {1, 2},
-        1: {0, 2, 3},
-        2: {0, 1, 3},
-        3: {1, 2, 4, 5},
-        4: {3, 5},
-        5: {3, 4},
+        0: {0, 1, 2},
+        1: {0, 1, 2, 3},
+        2: {0, 1, 2, 3},
+        3: {1, 2, 3, 4, 5},
+        4: {3, 4, 5},
+        5: {3, 4, 5},
     }
     assert domain.adjacent_elements(domain.elements[1], shared_edge=True) == {
         domain.elements[0]
