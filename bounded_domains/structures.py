@@ -105,9 +105,6 @@ class PolygonalDomain:
             }
             self._adjacent_elements_shared_edge_dict[element] = edge_adjacent_elements
 
-        for vertex, neighbors in self._adjacent_node_dict.items():
-            neighbors.remove(vertex)
-
         logger.debug("Populated node and element adjacency dictionaries.")
 
     def build_node_tree(self, vertices: list[Node]) -> None:
