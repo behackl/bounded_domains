@@ -78,3 +78,36 @@ def read_vertex_file(file_path: Path | str) -> list[Node]:
             )
         logger.info(f"Read {num_vertices} from {file_path}")
         return vertices
+
+
+def rectangle_domain_data(m: int, n: int) -> tuple(list[Element], list[Node]):
+    """Generate data for a triangulation of the unit square.
+
+    Parameters
+    ----------
+    n
+        The number of intervals along the x-axis.
+    m
+        The number of intervals along the y-axis.
+
+    Returns
+    -------
+        A tuple with the first entry being the list of elements
+        and the second entry being the list of nodes required
+        to instantiate a :class:`.PolygonalDomain`.
+    """
+    vertices = [Node(x=i/n, y=j/m) for i in range(n+1) for j in range(m+1)]
+    # vertex at (i/n, j/m) has index i*(m+1) + j.
+    lower_triangles = [
+        [i*(m + 1) + j, i*(m + 1) + j + 1, (i+1)*(m+1) + j]
+        for i in range(n) for j in range(m)
+    ]
+    upper_triangles = [
+        [(i + 1)*(m + 1) + j, (i + 1)*(m + 1) + j + 1, i*(m+1) + j + 1]
+        for i in range(n) for j in range(m)
+    ]
+    elements = [
+        Element(id, triangle)
+        for id, triangle in enumerate(lower_triangles + upper_triangles)
+    ]
+    return elements, vertices
