@@ -19,7 +19,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python: ['3.7', '3.8', '3.9', '3.10']
+        python: ['3.7', '3.8', '3.9']
 
     steps:
       - name: Checkout the repository
@@ -33,7 +33,7 @@ jobs:
       - name: Install Poetry and bounded_domains
         run: |
           pip install --user poetry
-          poetry install
+          python -m poetry install
 
       - name: Run tests
         run: |
