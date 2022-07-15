@@ -1,6 +1,14 @@
-from bounded_domains import Element, Node, PolygonalDomain, rectangle_domain_data
+from bounded_domains import (
+    Element,
+    Node,
+    PolygonalDomain,
+    rectangle_domain_data,
+    distance_point_on_segment,
+)
 
 from pathlib import Path
+
+import numpy as np
 
 
 def test_map_construction_tiny():
@@ -36,6 +44,23 @@ def test_generated_42x42_domain():
         repr(domain)
         == f"PolygonalDomain({len(elements)} elements, {len(vertices)} nodes)"
     )
+
+
+def test_distance_point_to_segment():
+    assert distance_point_on_segment(Node(5, 0), Node(0, 1), Node(1, 0)) == 4.0
+    assert distance_point_on_segment(
+        Node(0, 0), Node(0, 1), Node(1, 0)
+    ) == np.linalg.norm([0.5, 0.5])
+    assert distance_point_on_segment(Node(1, 0), Node(0, 1), Node(1, 0)) == 0.0
+
+
+def test_distance_to_element():
+    elements, vertices = rectangle_domain_data(1, 1)
+    domain = PolygonalDomain(elements, vertices)
+    assert domain.distance_to_element(Node(0, -1), 0) == 1.0
+    assert domain.distance_to_element(Node(-0.42, 0), 0) == 0.42
+    assert domain.distance_to_element(Node(0.25, 0.25), 0) == 0.0
+    assert domain.distance_to_element(Node(1, -10), 1) == 10.0
 
 
 def test_3x3_domain(request):
