@@ -13,6 +13,20 @@ on:
       - main
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+      - name: Setup Python environment
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - name: Black formatting
+        uses: psf/black@stable
+      - name: flake8 Lint
+        uses: py-actions/flake8@v2
+
   test:
     runs-on: ${{ matrix.os }}
     strategy:
