@@ -90,16 +90,17 @@ class PolygonalDomain:
                 self._adjacent_elements_shared_vertex_dict[element].update(
                     adjacent_elements
                 )
-                for adjacent_element_id in adjacent_elements:
-                    adjacent_element = self.elements[adjacent_element_id]
+                for adjacent_element in adjacent_elements:
                     self._adjacent_node_dict[vertex].update(adjacent_element.vertices)
 
-            self._adjacent_elements_shared_vertex_dict[element].remove(element.id)
+            self._adjacent_elements_shared_vertex_dict[element].remove(element)
 
             edge_adjacent_elements = {
-                self.elements[id]
-                for id in self._adjacent_elements_shared_vertex_dict[element]
-                if len(set.intersection(element.vertices, self.elements[id].vertices))
+                adjacent_element
+                for adjacent_element in self._adjacent_elements_shared_vertex_dict[
+                    element
+                ]
+                if len(set.intersection(element.vertices, adjacent_element.vertices))
                 == 2
             }
             self._adjacent_elements_shared_edge_dict[element] = edge_adjacent_elements
@@ -119,7 +120,7 @@ class PolygonalDomain:
         return Node(*self._node_tree.data[node_index])
 
     def elements_containing_vertex(self, vertex_index: int) -> list[Element]:
-        return self._node_containment_dict[vertex_index]
+        return [self.elements[ind] for ind in self._node_containment_dict[vertex_index]]
 
     def adjacent_elements(
         self, element: Element, shared_edge: bool = False
