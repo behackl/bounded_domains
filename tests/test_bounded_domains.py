@@ -63,6 +63,19 @@ def test_distance_to_element():
     assert domain.distance_to_element(Node(1, -10), 1) == 10.0
 
 
+def test_closest_element_randomized():
+    elements, vertices = rectangle_domain_data(1, 1)
+    domain = PolygonalDomain(elements, vertices)
+    for _ in range(100):
+        p = np.random.rand(2) * 2 - 0.5
+        if p[0] - p[1] >= 1 or p[0] - p[1] <= -1:
+            continue  # closest point is in a corner where 2 elements meet
+        if sum(p) > 1:
+            assert domain.closest_element(p).id == 1
+        if sum(p) < 1:
+            assert domain.closest_element(p).id == 0
+
+
 def test_3x3_domain(request):
     domain = PolygonalDomain.from_files(
         Path(request.node.fspath).parent / "resources/3x3_elements_2d.txt",
