@@ -9,7 +9,6 @@ from . import logger
 from .structures import Element, Node
 
 
-
 def read_element_file(file_path: Path | str) -> list[Element]:
     """Read an element file and return its content in a list.
 
@@ -30,7 +29,7 @@ def read_element_file(file_path: Path | str) -> list[Element]:
     file_path
         The path to the element file.
     """
-    with open(file_path, 'r') as element_file:
+    with open(file_path, "r") as element_file:
         num_elements = int(next(element_file).strip())  # first line of file
         elements = []
         for element_index, line in enumerate(element_file):
@@ -65,7 +64,7 @@ def read_vertex_file(file_path: Path | str) -> list[Node]:
     file_path
         The path to the vertex file.
     """
-    with open(file_path, 'r') as vertex_file:
+    with open(file_path, "r") as vertex_file:
         num_vertices = int(next(vertex_file).strip())
         vertices = []
         for line in vertex_file:
@@ -96,15 +95,17 @@ def rectangle_domain_data(m: int, n: int) -> tuple(list[Element], list[Node]):
         and the second entry being the list of nodes required
         to instantiate a :class:`.PolygonalDomain`.
     """
-    vertices = [Node(x=i/n, y=j/m) for i in range(n+1) for j in range(m+1)]
+    vertices = [Node(x=i / n, y=j / m) for i in range(n + 1) for j in range(m + 1)]
     # vertex at (i/n, j/m) has index i*(m+1) + j.
     lower_triangles = [
-        [i*(m + 1) + j, i*(m + 1) + j + 1, (i+1)*(m+1) + j]
-        for i in range(n) for j in range(m)
+        [i * (m + 1) + j, i * (m + 1) + j + 1, (i + 1) * (m + 1) + j]
+        for i in range(n)
+        for j in range(m)
     ]
     upper_triangles = [
-        [(i + 1)*(m + 1) + j, (i + 1)*(m + 1) + j + 1, i*(m+1) + j + 1]
-        for i in range(n) for j in range(m)
+        [(i + 1) * (m + 1) + j, (i + 1) * (m + 1) + j + 1, i * (m + 1) + j + 1]
+        for i in range(n)
+        for j in range(m)
     ]
     elements = [
         Element(id, triangle)
