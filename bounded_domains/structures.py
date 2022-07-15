@@ -12,9 +12,9 @@ from typing import Iterable
 from . import logger
 
 
-
 class Element:
     """Representation of a (triangular) element."""
+
     def __init__(self, id: int, vertices: Iterable[int]) -> None:
         self.id = id
         vertices = set(vertices)
@@ -29,7 +29,7 @@ class Element:
         return f"Element(id={self.id}, vertices={self.vertices})"
 
 
-Node = namedtuple('Node', ['x', 'y'])
+Node = namedtuple("Node", ["x", "y"])
 
 
 class PolygonalDomain:
@@ -43,18 +43,22 @@ class PolygonalDomain:
         The list of Nodes specifying the coordinates of the
         elements of the domain.
     """
+
     def __init__(self, elements: list[Element], vertices: list[Node]) -> None:
         self.elements = elements
 
         self.build_mappings()
         self.build_node_tree(vertices)
 
-
     def __repr__(self):
-        return f"PolygonalDomain({len(self.elements)} elements, {self._node_tree.n} nodes)"
+        return (
+            f"PolygonalDomain({len(self.elements)} elements, {self._node_tree.n} nodes)"
+        )
 
     @staticmethod
-    def from_files(element_file_path: str | Path, vertex_file_path: str | Path) -> PolygonalDomain:
+    def from_files(
+        element_file_path: str | Path, vertex_file_path: str | Path
+    ) -> PolygonalDomain:
         """Constructs a PolygonalDomain by reading entries from files."""
         from .utils import read_element_file, read_vertex_file
 
@@ -83,7 +87,9 @@ class PolygonalDomain:
         for element in self.elements:
             for vertex in element.vertices:
                 adjacent_elements = self.elements_containing_vertex(vertex)
-                self._adjacent_elements_shared_vertex_dict[element].update(adjacent_elements)
+                self._adjacent_elements_shared_vertex_dict[element].update(
+                    adjacent_elements
+                )
                 for adjacent_element_id in adjacent_elements:
                     adjacent_element = self.elements[adjacent_element_id]
                     self._adjacent_node_dict[vertex].update(adjacent_element.vertices)
@@ -91,10 +97,10 @@ class PolygonalDomain:
             self._adjacent_elements_shared_vertex_dict[element].remove(element.id)
 
             edge_adjacent_elements = {
-                self.elements[id] for id
-                in self._adjacent_elements_shared_vertex_dict[element]
-                if len(set.intersection(element.vertices,
-                                        self.elements[id].vertices)) == 2
+                self.elements[id]
+                for id in self._adjacent_elements_shared_vertex_dict[element]
+                if len(set.intersection(element.vertices, self.elements[id].vertices))
+                == 2
             }
             self._adjacent_elements_shared_edge_dict[element] = edge_adjacent_elements
 
@@ -102,7 +108,6 @@ class PolygonalDomain:
             neighbors.remove(vertex)
 
         logger.debug("Populated node and element adjacency dictionaries.")
-
 
     def build_node_tree(self, vertices: list[Node]) -> None:
         """Build auxiliary kd-tree used for distance queries."""
@@ -118,10 +123,8 @@ class PolygonalDomain:
         return self._node_containment_dict[vertex_index]
 
     def adjacent_elements(
-        self,
-        element: Element,
-        shared_edge: bool = False
-        ) -> list[Element]:
+        self, element: Element, shared_edge: bool = False
+    ) -> list[Element]:
         if shared_edge:
             return self._adjacent_elements_shared_edge_dict[element]
         return self._adjacent_elements_shared_vertex_dict[element]
@@ -159,7 +162,9 @@ class PolygonalDomain:
         distance, closest_vertex_index = self._node_tree.query(node)
         return closest_vertex_index
 
-    def closest_element(self, node: Node, compare_all_elements: bool = False) -> Element:
+    def closest_element(
+        self, node: Node, compare_all_elements: bool = False
+    ) -> Element:
         """Determines a element of the domain that is closest to the specified node.
 
         The default, efficient strategy to find the closest element is as follows:
@@ -201,7 +206,5 @@ class PolygonalDomain:
             candidate_set = set.union(adjacent_elements, candidate_set)
 
         return min(
-            candidate_set,
-            key=lambda elem: self.distance_to_element(node, elem.id)
+            candidate_set, key=lambda elem: self.distance_to_element(node, elem.id)
         )
-
