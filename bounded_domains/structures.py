@@ -115,8 +115,7 @@ class PolygonalDomain:
         self._node_tree = KDTree(coordinates)
         logger.debug("Coordinate kd-tree has been constructed.")
 
-    @property
-    def vertex(self, node_index) -> Node:
+    def vertex(self, node_index: int) -> Node:
         return Node(*self._node_tree.data[node_index])
 
     def elements_containing_vertex(self, vertex_index: int) -> list[Element]:
@@ -133,7 +132,19 @@ class PolygonalDomain:
         return self._adjacent_node_dict[vertex_index]
 
     def distance_to_element(self, node: Node, element_id: int) -> float:
-        """The distance from a given input Node to the element with the specified id.
+        r"""The distance from a given input Node to the element with the specified id.
+
+        We use the following approach to determine the distance between
+        the point :math:`P` and the triangle :math:`\triangle ABC`. First,
+        we solve the equation :math:`A + (B-A) t_1 + (C-A) t_2 = P`. Depending
+        on the values of :math:`t_1` and :math:`t_2`, we proceed as follows:
+
+        - In case :math:`0\leq t_1, t_2 \leq 1` the point is inside of
+          :math:`\triangle ABC` and the distance is thus 0,
+        - if :math:`t_1 < 0` we compute the closest point on the segment :math:`AC`,
+        - if :math:`t_2 < 0` we compute the closest point on the segment :math:`AB`,
+        - and if :math:`t_1 + t_2 > 1` we compute the closest point on
+          the segment :math:`BC`.
 
         Parameters
         ----------
@@ -142,7 +153,22 @@ class PolygonalDomain:
         element_id
             The index of the element to which the distance is computed.
         """
-        pass
+        A, B, C = [
+            np.array(self.vertex(ind)) for ind in self.elements[element_id].vertices
+        ]
+        P = np.array(node)
+
+        t1, t2 = np.dot(np.linalg.inv(np.column_stack((B - A, C - A))), (P - A).T)
+        logger.debug(f"Triangle coordinates: t1={t1}, t2={t2}")
+
+        if 0 <= t1 <= 1 and 0 <= t2 <= 1:  # point inside of triangle
+            return 0.0
+        if t1 < 0:  # consider segment AC
+            return distance_point_on_segment(P, A, C)
+        if t2 < 0:  # consider segment AB
+            return distance_point_on_segment(P, A, B)
+        else:  # consider segment BC
+            return distance_point_on_segment(P, B, C)
 
     def closest_vertex(self, node: Node) -> int:
         """Determines a closest vertex to the specified node.
@@ -208,3 +234,15 @@ class PolygonalDomain:
         return min(
             candidate_set, key=lambda elem: self.distance_to_element(node, elem.id)
         )
+
+
+def distance_point_on_segment(P: Node, A: Node, B: Node):
+    """Determines the shortest distance from a point P to a line segment AB."""
+    p = np.array(P)
+    a = np.array(A)
+    b = np.array(B)
+    segment_vector = b - a
+    t = np.dot(p - a, segment_vector) / np.sum(segment_vector**2)
+    if t < 0 or t > 1:  # projection outside of segment segment
+        t = 0 if t < 0 else 1
+    return np.linalg.norm(a + t * segment_vector - p)
