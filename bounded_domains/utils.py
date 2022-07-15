@@ -33,9 +33,10 @@ def read_element_file(file_path: Path | str) -> list[Element]:
     with open(file_path, 'r') as element_file:
         num_elements = int(next(element_file).strip())  # first line of file
         elements = []
-        for line in element_file:
-            elements.append(set(int(vertex_index) for vertex_index in line.split()))
-        
+        for element_index, line in enumerate(element_file):
+            vertex_indices = [int(v_index) for v_index in line.split()]
+            elements.append(Element(element_index, vertex_indices))
+
         if num_elements != len(elements):
             raise ValueError(
                 f"Specified number of elements {num_elements} does not match "
@@ -47,7 +48,7 @@ def read_element_file(file_path: Path | str) -> list[Element]:
 
 def read_vertex_file(file_path: Path | str) -> list[Node]:
     """Read a vertex file and return its content in a list.
-    
+
     Also checks whether the specified file is formatted correctly.
 
     A vertex file is a plain text file formatted like this::
@@ -56,20 +57,20 @@ def read_vertex_file(file_path: Path | str) -> list[Node]:
         x   y
         x   y
         ...
-    
+
     The x and y coordinates are given as floats.
-    
+
     Parameters
     ----------
     file_path
         The path to the vertex file.
     """
     with open(file_path, 'r') as vertex_file:
-        num_vertices = int(next(vertex_file).split())
+        num_vertices = int(next(vertex_file).strip())
         vertices = []
         for line in vertex_file:
             vertices.append(Node(*[float(coord) for coord in line.split()]))
-        
+
         if num_vertices != len(vertices):
             raise ValueError(
                 f"Specified number of vertices {num_vertices} does not match "
