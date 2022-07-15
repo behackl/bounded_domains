@@ -160,9 +160,9 @@ class PolygonalDomain:
         P = np.array(node)
 
         t1, t2 = np.dot(np.linalg.inv(np.column_stack((B - A, C - A))), (P - A).T)
-        logger.debug(f"Triangle coordinates: t1={t1}, t2={t2}")
+        logger.debug(f"Triangle {A, B, C} coordinates: t1={t1}, t2={t2}")
 
-        if 0 <= t1 <= 1 and 0 <= t2 <= 1:  # point inside of triangle
+        if 0 <= t1 <= 1 and 0 <= t2 <= 1 and t1 + t2 <= 1:  # point inside of triangle
             return 0.0
         if t1 < 0:  # consider segment AC
             return distance_point_on_segment(P, A, C)
