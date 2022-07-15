@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Iterable
+import numpy as np
 
 from collections import namedtuple, defaultdict
 from pathlib import Path
-
+from scipy.spatial import KDTree
+from typing import Iterable
 
 from . import logger
 
@@ -31,7 +32,6 @@ class Element:
 Node = namedtuple('Node', ['x', 'y'])
 
 
-
 class PolygonalDomain:
     """A polygonal domain consisting of (triangular) elements.
 
@@ -43,18 +43,15 @@ class PolygonalDomain:
         The list of Nodes specifying the coordinates of the
         elements of the domain.
     """
-    # needs to be initialized with element list and coordinate list
-    # probably implements the actual computations
-    def __init__(self, elements: list[Element], coordinates: list[Node]) -> None:
+    def __init__(self, elements: list[Element], vertices: list[Node]) -> None:
         self.elements = elements
-        self.coordinates = coordinates
 
         self.build_mappings()
-        self.build_quadtree()
+        self.build_node_tree(vertices)
 
 
     def __repr__(self):
-        return f"PolygonalDomain({len(self.elements)} elements, {len(self.coordinates)} nodes)"
+        return f"PolygonalDomain({len(self.elements)} elements, {self._node_tree.n} nodes)"
 
     @staticmethod
     def from_files(element_file_path: str | Path, vertex_file_path: str | Path) -> PolygonalDomain:
@@ -104,12 +101,18 @@ class PolygonalDomain:
         for vertex, neighbors in self._adjacent_node_dict.items():
             neighbors.remove(vertex)
 
+        logger.debug("Populated node and element adjacency dictionaries.")
 
-    def build_quadtree(self) -> None:
-        """Iterate through domain vertices and build auxiliary quadtree."""
-        self._quadtree = None
 
-        # TODO: build quadtree
+    def build_node_tree(self, vertices: list[Node]) -> None:
+        """Build auxiliary kd-tree used for distance queries."""
+        coordinates = np.array([[v.x, v.y] for v in vertices])
+        self._node_tree = KDTree(coordinates)
+        logger.debug("Coordinate kd-tree has been constructed.")
+
+    @property
+    def vertex(self, node_index) -> Node:
+        return Node(*self._node_tree.data[node_index])
 
     def elements_containing_vertex(self, vertex_index: int) -> list[Element]:
         return self._node_containment_dict[vertex_index]
@@ -126,16 +129,79 @@ class PolygonalDomain:
     def adjacent_vertices(self, vertex_index: int) -> list[int]:
         return self._adjacent_node_dict[vertex_index]
 
-    def closest_element(self, node: Node, return_index: bool = False) -> Element | int:
+    def distance_to_element(self, node: Node, element_id: int) -> float:
+        """The distance from a given input Node to the element with the specified id.
+
+        Parameters
+        ----------
+        node
+            The node to which the distance is computed.
+        element_id
+            The index of the element to which the distance is computed.
+        """
+        pass
+
+    def closest_vertex(self, node: Node) -> int:
+        """Determines a closest vertex to the specified node.
+
+        This is done by querying the kd-tree storing coordinate data.
+
+        Parameters
+        ----------
+        node
+            The node to which a closest vertex is determined.
+
+        Returns
+        -------
+        int
+            The index of a closest vertex.
+        """
+        distance, closest_vertex_index = self._node_tree.query(node)
+        return closest_vertex_index
+
+    def closest_element(self, node: Node, compare_all_elements: bool = False) -> Element:
         """Determines a element of the domain that is closest to the specified node.
+
+        The default, efficient strategy to find the closest element is as follows:
+
+        - First, by calling :meth:`.closest_vertex`, the closest vertex
+          of the polygonal domain is determined.
+        - Second, :meth:`.elements_containing_vertex` is used to determine
+          all elements which the closest vertex is contained in.
+        - Third, the determined elements together with their adjacent ones
+          (via :meth:`.adjacent_elements`) make up a set of candidate elements.
+        - Finally, the distance to all elements in the candidate set is
+          computed using :meth:`.distance_to_element`, and an Element with
+          minimal distance is returned.
+
+        .. NOTE::
+
+            In pathologic situations where the polygonal domain is not
+            connected, the strategy that only considers elements
+            adjacent to the ones containing a closest vertex can produce
+            wrong results.
 
         Parameters
         ----------
         node
             The node to which an element with minimum distance is found.
-        return_index
-            If False (the default), the actual element is returned. Otherwise
-            the element index in the domain is returned.
+        compare_all_elements
+            If False (the default) only elements adjacent to the ones
+            containing the closest vertex are queried. Otherwise the
+            distance to all elements is computed.
         """
-        return 0
+        if compare_all_elements:
+            candidate_set = self.elements
+        else:
+            closest_vertex = self.closest_vertex(node)
+            candidate_set = self.elements_containing_vertex(closest_vertex)
+            adjacent_elements = set()
+            for element in candidate_set:
+                adjacent_elements.update(self.adjacent_elements(element))
+            candidate_set = set.union(adjacent_elements, candidate_set)
+
+        return min(
+            candidate_set,
+            key=lambda elem: self.distance_to_element(node, elem.id)
+        )
 
