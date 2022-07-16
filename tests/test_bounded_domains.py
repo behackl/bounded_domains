@@ -1,14 +1,14 @@
+from pathlib import Path
+
+import numpy as np
+
 from bounded_domains import (
     Element,
     Node,
     PolygonalDomain,
-    rectangle_domain_data,
     distance_point_on_segment,
+    rectangle_domain_data,
 )
-
-from pathlib import Path
-
-import numpy as np
 
 
 def test_map_construction_tiny():

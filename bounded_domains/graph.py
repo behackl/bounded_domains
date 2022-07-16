@@ -2,16 +2,16 @@
 
 from __future__ import annotations
 
-from .structures import PolygonalDomain
-
 import gzip
 import json
-import matplotlib
-import numpy as np
-
-from matplotlib import pyplot as plt
 from pathlib import Path
 from typing import Iterator
+
+import matplotlib
+import numpy as np
+from matplotlib import pyplot as plt
+
+from .structures import PolygonalDomain
 
 
 class SparseMatrix:

@@ -2,12 +2,12 @@
 
 from __future__ import annotations
 
-import numpy as np
-
-from collections import namedtuple, defaultdict
+from collections import defaultdict, namedtuple
 from pathlib import Path
-from scipy.spatial import KDTree
 from typing import Iterable
+
+import numpy as np
+from scipy.spatial import KDTree
 
 from . import logger
 
