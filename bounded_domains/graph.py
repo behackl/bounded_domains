@@ -6,11 +6,12 @@ from .structures import PolygonalDomain
 
 import gzip
 import json
+import matplotlib
 import numpy as np
 
 from matplotlib import pyplot as plt
 from pathlib import Path
-
+from typing import Iterator
 
 class SparseMatrix:
     """A sparse matrix implementing the CRS format.
@@ -87,6 +88,15 @@ class SparseMatrix:
             result.append(result_entry)
 
         return np.array(result)
+
+    def cell_iterator(self) -> Iterator[tuple[tuple[int, int], float]]:
+        """An iterator over all non-zero entries with their matrix coordinates."""
+        row = 0
+        for index, value in enumerate(self.values):
+            column = self.column_indices[index]
+            while self.row_pointers[row+1] <= index:
+                row += 1
+            yield ((row, column), value)
 
     @staticmethod
     def from_CRS(
@@ -187,6 +197,7 @@ class SparseMatrix:
             The name of the file the plot is written to. If None (the default),
             matplotlib just shows the plot.
         """
+        _ = plt.figure()
         plt.matshow(
             [[self[i, j] for j in range(self.columns)] for i in range(self.rows)]
         )
@@ -208,34 +219,97 @@ class Graph:
         The :class:`.PolygonalDomain` whose vertices should be modeled by the graph.
     """
 
-    def __init__(self, domain: PolygonalDomain):
-        pass
+    def __init__(self, domain: PolygonalDomain) -> None:
+        adjacency_array = []
+        for vertex in range(domain.num_vertices):
+            adjacent_vertices = domain.adjacent_vertices(vertex)
+            adjacency_array.append([
+                1 if w in adjacent_vertices else 0
+                for w in range(domain.num_vertices)
+            ])
+
+        self._adjacency_matrix = SparseMatrix(adjacency_array)
+        self._node_positions = domain._node_tree.data
+
+    def __repr__(self) -> str:
+        return f"Graph({self.order} vertices, {self.size} edges)"
+
+    @property
+    def order(self) -> int:
+        """The order of the graph, i.e., the number of vertices."""
+        return self._adjacency_matrix.rows
+
+    @property
+    def size(self) -> int:
+        """The size of the graph, i.e., the number of edges."""
+        return len(self._adjacency_matrix.values)
+
+    def plot(self, filename: str | Path | None = None, **kwargs) -> None:
+        """A plot of the graph.
+
+        .. NOTE::
 
 
-    @staticmethod
-    def get_edge_weight(v: int, w: int, domain: PolygonalDomain) -> float | None:
-        """Helper method for determining the weight of the edge uv.
 
         Parameters
         ----------
-        v
-            An endpoint of the edge.
-        w
-            An endpoint of the edge.
-        domain
-            The polygonal domain used to determine edge weights.
-
-        Returns
-        -------
-            The edge weight (or ``None`` for unweighted graphs).
+        filename
+            The name of the file the plot is saved to.
+        kwargs
+            Further keyword arguments are passed to matplotlib.
         """
-        return None
-
-    def plot(self) -> None:
-        pass  # graphviz?
+        _ = plt.figure(**kwargs)
+        min_value = min(self._adjacency_matrix.values)
+        max_value = max(self._adjacency_matrix.values)
+        colormap = matplotlib.cm.get_cmap("coolwarm")
+        for ((i, j), value) in self._adjacency_matrix.cell_iterator():
+            plt.plot(
+                (self._node_positions[i, 0], self._node_positions[j, 0]),
+                (self._node_positions[i, 1], self._node_positions[j, 1]),
+                c=colormap((value - min_value)/(max_value - min_value)),
+            )
+        plt.plot(
+            self._node_positions[:,0],
+            self._node_positions[:,1],
+            'o',
+            c='#000'
+        )
+        if filename is not None:
+            plt.savefig(filename)
+        else:
+            plt.show()
 
 
 class WeightedGraph(Graph):
-    @staticmethod
-    def get_edge_weight(v: int, w: int, domain: PolygonalDomain) -> float:
-        return 42
+    """A weighted graph modeling the relationship of vertices in a polygonal domain.
+
+    The weight of an edge between distinct vertices :math:`u` and :math:`v`
+    is the inverse of the squared node distance. The weight of reflexive
+    edges :math:`(v, v)` is the negative sum of the weights of all non-reflexive
+    edges incident to :math:`v`.
+
+    Parameters
+    ----------
+    domain
+        The :class:`.PolygonalDomain` whose vertices should be modeled by the graph.
+    """
+    def __init__(self, domain: PolygonalDomain) -> None:
+        super().__init__(domain)
+        for index, tp in enumerate(self._adjacency_matrix.cell_iterator()):
+            ((i, j), value) = tp
+            if i != j:
+                vec_i = np.array(domain.vertex(i))
+                vec_j = np.array(domain.vertex(j))
+                self._adjacency_matrix.values[index] = 1 / np.sum((vec_i - vec_j)**2)
+            else:
+                weight_sum = 0
+                vec_i = np.array(domain.vertex(i))
+                for k in domain.adjacent_vertices(i):
+                    if k == i:
+                        continue
+                    vec_k = np.array(domain.vertex(k))
+                    weight_sum += 1 / np.sum((vec_i - vec_k)**2)
+                self._adjacency_matrix.values[index] = -weight_sum
+
+    def __repr__(self) -> str:
+        return f"WeightedGraph({self.order} vertices, {self.size} edges)"
