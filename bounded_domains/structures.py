@@ -52,8 +52,13 @@ class PolygonalDomain:
 
     def __repr__(self):
         return (
-            f"PolygonalDomain({len(self.elements)} elements, {self._node_tree.n} nodes)"
+            f"PolygonalDomain({len(self.elements)} elements, {self.num_vertices} nodes)"
         )
+
+    @property
+    def num_vertices(self) -> int:
+        """The number of vertices of the domain."""
+        return self._node_tree.n
 
     @staticmethod
     def from_files(
