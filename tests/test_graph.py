@@ -1,10 +1,9 @@
-from bounded_domains import SparseMatrix, Graph, WeightedGraph
+from pathlib import Path
 
 import matplotlib
 import numpy as np
 
-from pathlib import Path
-
+from bounded_domains import Graph, SparseMatrix, WeightedGraph
 from bounded_domains.structures import PolygonalDomain
 from bounded_domains.utils import rectangle_domain_data
 
