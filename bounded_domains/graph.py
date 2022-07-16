@@ -13,6 +13,7 @@ from matplotlib import pyplot as plt
 from pathlib import Path
 from typing import Iterator
 
+
 class SparseMatrix:
     """A sparse matrix implementing the CRS format.
 
@@ -53,18 +54,18 @@ class SparseMatrix:
 
     def __eq__(self, other: SparseMatrix) -> bool:
         return (
-            self.values == other.values and
-            self.column_indices == other.column_indices and
-            self.row_pointers == other.row_pointers and
-            self.columns == other.columns
+            self.values == other.values
+            and self.column_indices == other.column_indices
+            and self.row_pointers == other.row_pointers
+            and self.columns == other.columns
         )
 
     def __getitem__(self, key: tuple[int, int]) -> float:
         """Array-indexing, allows to query entries via SparseMatrix[i, j]"""
         i, j = key
-        nonempty_columns = self.column_indices[
-            self.row_pointers[i] : self.row_pointers[i + 1]
-        ]
+        row_pointer = self.row_pointers[i]
+        next_row_pointer = self.row_pointers[i + 1]
+        nonempty_columns = self.column_indices[row_pointer:next_row_pointer]
         try:
             column_index = nonempty_columns.index(j)
             return self.values[self.row_pointers[i] + column_index]
@@ -94,7 +95,7 @@ class SparseMatrix:
         row = 0
         for index, value in enumerate(self.values):
             column = self.column_indices[index]
-            while self.row_pointers[row+1] <= index:
+            while self.row_pointers[row + 1] <= index:
                 row += 1
             yield ((row, column), value)
 
@@ -103,7 +104,7 @@ class SparseMatrix:
         values: list[float],
         column_indices: list[int],
         row_pointers: list[int],
-        columns: int
+        columns: int,
     ) -> SparseMatrix:
         """Initialization of a SparseMatrix from the raw CRS data.
 
@@ -141,24 +142,22 @@ class SparseMatrix:
         """
         if not binary:
             matrix_string = "\n".join(
-                "\t".join(
-                    str(self[i, j]) for j in range(self.columns)
-                ) for i in range(self.rows)
+                "\t".join(str(self[i, j]) for j in range(self.columns))
+                for i in range(self.rows)
             )
-            with open(filename, 'w') as file:
+            with open(filename, "w") as file:
                 file.write(matrix_string)
 
         else:
             data = {
-                'values': self.values,
-                'column_indices': self.column_indices,
-                'row_pointers': self.row_pointers,
-                'columns': self.columns,
+                "values": self.values,
+                "column_indices": self.column_indices,
+                "row_pointers": self.row_pointers,
+                "columns": self.columns,
             }
-            serialized_data = json.dumps(data).encode('utf-8')
-            with gzip.open(filename, 'w') as file:
+            serialized_data = json.dumps(data).encode("utf-8")
+            with gzip.open(filename, "w") as file:
                 file.write(serialized_data)
-
 
     @staticmethod
     def read(filename: str | Path) -> None:
@@ -173,20 +172,19 @@ class SparseMatrix:
         filename
             The name of the file to be read.
         """
-        bad_gzip_exception = getattr(gzip, 'BadGzipFile', OSError)
+        bad_gzip_exception = getattr(gzip, "BadGzipFile", OSError)
         try:
-            with gzip.open(filename, 'r') as file:
-                serialized_data = file.read().decode('utf-8')
+            with gzip.open(filename, "r") as file:
+                serialized_data = file.read().decode("utf-8")
                 data = json.loads(serialized_data)
                 return SparseMatrix.from_CRS(**data)
         except bad_gzip_exception:
-            with open(filename, 'r') as file:
+            with open(filename, "r") as file:
                 array = []
                 for line in file:
                     array.append([float(val) for val in line.split()])
 
             return SparseMatrix(array)
-
 
     def plot(self, filename: str | Path | None = None) -> None:
         """A plot of this matrix.
@@ -200,13 +198,12 @@ class SparseMatrix:
         _ = plt.figure()
         plt.matshow(
             [[self[i, j] for j in range(self.columns)] for i in range(self.rows)],
-            cmap="coolwarm"
+            cmap="coolwarm",
         )
         if filename is None:
             plt.show()
         else:
             plt.savefig(filename)
-
 
 
 class Graph:
@@ -224,10 +221,9 @@ class Graph:
         adjacency_array = []
         for vertex in range(domain.num_vertices):
             adjacent_vertices = domain.adjacent_vertices(vertex)
-            adjacency_array.append([
-                1 if w in adjacent_vertices else 0
-                for w in range(domain.num_vertices)
-            ])
+            adjacency_array.append(
+                [1 if w in adjacent_vertices else 0 for w in range(domain.num_vertices)]
+            )
 
         self._adjacency_matrix = SparseMatrix(adjacency_array)
         self._node_positions = domain._node_tree.data
@@ -269,14 +265,9 @@ class Graph:
             plt.plot(
                 (self._node_positions[i, 0], self._node_positions[j, 0]),
                 (self._node_positions[i, 1], self._node_positions[j, 1]),
-                c=colormap((value - min_value)/(max_value - min_value)),
+                c=colormap((value - min_value) / (max_value - min_value)),
             )
-        plt.plot(
-            self._node_positions[:,0],
-            self._node_positions[:,1],
-            'o',
-            c='#000'
-        )
+        plt.plot(self._node_positions[:, 0], self._node_positions[:, 1], "o", c="#000")
         if filename is not None:
             plt.savefig(filename)
         else:
@@ -296,6 +287,7 @@ class WeightedGraph(Graph):
     domain
         The :class:`.PolygonalDomain` whose vertices should be modeled by the graph.
     """
+
     def __init__(self, domain: PolygonalDomain) -> None:
         super().__init__(domain)
         for index, tp in enumerate(self._adjacency_matrix.cell_iterator()):
@@ -303,7 +295,7 @@ class WeightedGraph(Graph):
             if i != j:
                 vec_i = np.array(domain.vertex(i))
                 vec_j = np.array(domain.vertex(j))
-                self._adjacency_matrix.values[index] = 1 / np.sum((vec_i - vec_j)**2)
+                self._adjacency_matrix.values[index] = 1 / np.sum((vec_i - vec_j) ** 2)
             else:
                 weight_sum = 0
                 vec_i = np.array(domain.vertex(i))
@@ -311,7 +303,7 @@ class WeightedGraph(Graph):
                     if k == i:
                         continue
                     vec_k = np.array(domain.vertex(k))
-                    weight_sum += 1 / np.sum((vec_i - vec_k)**2)
+                    weight_sum += 1 / np.sum((vec_i - vec_k) ** 2)
                 self._adjacency_matrix.values[index] = -weight_sum
 
     def __repr__(self) -> str:

@@ -1,10 +1,8 @@
-from cmath import rect
 import matplotlib
-matplotlib.use("agg")  # filewriting-only backend
-
-from pathlib import Path
 
 from bounded_domains import Node, PolygonalDomain, WeightedGraph, rectangle_domain_data
+
+matplotlib.use("agg")  # filewriting-only backend
 
 # domain = PolygonalDomain.from_files(
 #     Path("tests") / "resources/3x3_elements_2d.txt",
