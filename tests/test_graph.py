@@ -5,6 +5,9 @@ import numpy as np
 
 from pathlib import Path
 
+from bounded_domains.structures import PolygonalDomain
+from bounded_domains.utils import rectangle_domain_data
+
 
 def test_matrix_creation():
     mat = SparseMatrix(
@@ -63,6 +66,25 @@ def test_matrix_getitem():
     assert mat[0, 3] == 12
     assert mat[1, 1] == 0
 
+def test_matrix_cell_iterator():
+    mat = SparseMatrix(
+        [
+            [10, 0, 0, 12, 0],
+            [0, 0, 11, 0, 13],
+            [0, 16, 0, 0, 0],
+            [0, 0, 11, 0, 13],
+        ]
+    )
+    assert list(mat.cell_iterator()) == [
+        ((0, 0), 10),
+        ((0, 3), 12),
+        ((1, 2), 11),
+        ((1, 4), 13),
+        ((2, 1), 16),
+        ((3, 2), 11),
+        ((3, 4), 13),
+    ]
+
 def test_matrix_from_CRS():
     mat = SparseMatrix.from_CRS(
         values=[10, 12, 11, 13, 16, 11, 13],
@@ -101,3 +123,18 @@ def test_matrix_plot(tmp_path):
     mat = SparseMatrix(np.clip(np.random.rand(10, 10) - 0.5, 0, 1))
     mat.plot(tmp_path / "matrixplot.png")
     assert Path(tmp_path / "matrixplot.png").exists()
+
+
+def test_graph_2x2():
+    domain = PolygonalDomain(*rectangle_domain_data(2, 2))
+    graph_2x2 = Graph(domain)
+
+    assert graph_2x2.order == 9
+    assert graph_2x2.size == 2*16 + 9
+    assert repr(graph_2x2) == "Graph(9 vertices, 41 edges)"
+
+def test_weighted_graph_117_34():
+    domain = PolygonalDomain(*rectangle_domain_data(117, 34))
+    graph_117x34 = WeightedGraph(domain)
+
+    assert graph_117x34.order == (117 + 1) * (34 + 1)
