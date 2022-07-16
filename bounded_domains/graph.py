@@ -199,7 +199,8 @@ class SparseMatrix:
         """
         _ = plt.figure()
         plt.matshow(
-            [[self[i, j] for j in range(self.columns)] for i in range(self.rows)]
+            [[self[i, j] for j in range(self.columns)] for i in range(self.rows)],
+            cmap="coolwarm"
         )
         if filename is None:
             plt.show()
