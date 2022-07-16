@@ -133,6 +133,13 @@ def test_graph_2x2():
     assert graph_2x2.size == 2*16 + 9
     assert repr(graph_2x2) == "Graph(9 vertices, 41 edges)"
 
+def test_graph_plot(tmp_path):
+    domain = PolygonalDomain(*rectangle_domain_data(5, 5))
+    matplotlib.use("agg")
+    graph = WeightedGraph(domain)
+    graph.plot(tmp_path / "graphplot.png")
+    assert Path(tmp_path / "graphplot.png").exists()
+
 def test_weighted_graph_117_34():
     domain = PolygonalDomain(*rectangle_domain_data(117, 34))
     graph_117x34 = WeightedGraph(domain)
