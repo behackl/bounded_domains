@@ -66,6 +66,7 @@ def test_matrix_getitem():
     assert mat[0, 3] == 12
     assert mat[1, 1] == 0
 
+
 def test_matrix_cell_iterator():
     mat = SparseMatrix(
         [
@@ -85,6 +86,7 @@ def test_matrix_cell_iterator():
         ((3, 4), 13),
     ]
 
+
 def test_matrix_from_CRS():
     mat = SparseMatrix.from_CRS(
         values=[10, 12, 11, 13, 16, 11, 13],
@@ -100,6 +102,7 @@ def test_matrix_from_CRS():
             [0, 0, 11, 0, 13],
         ]
     )
+
 
 def test_matrix_write_read(tmp_path):
     mat = SparseMatrix(
@@ -117,6 +120,7 @@ def test_matrix_write_read(tmp_path):
     read_txt_mat = SparseMatrix.read(tmp_path / "matrix.txt")
     assert mat == read_txt_mat
 
+
 def test_matrix_plot(tmp_path):
     np.random.seed(42)
     matplotlib.use("agg")
@@ -130,8 +134,9 @@ def test_graph_2x2():
     graph_2x2 = Graph(domain)
 
     assert graph_2x2.order == 9
-    assert graph_2x2.size == 2*16 + 9
+    assert graph_2x2.size == 2 * 16 + 9
     assert repr(graph_2x2) == "Graph(9 vertices, 41 edges)"
+
 
 def test_graph_plot(tmp_path):
     domain = PolygonalDomain(*rectangle_domain_data(5, 5))
@@ -139,6 +144,7 @@ def test_graph_plot(tmp_path):
     graph = WeightedGraph(domain)
     graph.plot(tmp_path / "graphplot.png")
     assert Path(tmp_path / "graphplot.png").exists()
+
 
 def test_weighted_graph_117_34():
     domain = PolygonalDomain(*rectangle_domain_data(117, 34))
