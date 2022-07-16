@@ -13,3 +13,4 @@ logger.addHandler(logger_consolehandler)
 
 from .utils import *
 from .structures import *
+from .graph import *
