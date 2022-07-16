@@ -249,7 +249,9 @@ class Graph:
 
         .. NOTE::
 
-
+            For the sake of visual clarity, the reflexive
+            edges are not plotted. For the other edges, their
+            color corresponds to their weight.
 
         Parameters
         ----------
