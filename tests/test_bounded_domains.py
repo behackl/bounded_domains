@@ -83,6 +83,23 @@ def test_3x3_domain(request):
     )
     assert repr(domain) == "PolygonalDomain(18 elements, 16 nodes)"
 
+    assert set(elem.id for elem in domain.adjacent_elements(3)) == {
+        0,
+        1,
+        2,
+        5,
+        6,
+        8,
+        9,
+        10,
+        11,
+    }
+    assert set(elem.id for elem in domain.adjacent_elements(3, shared_edge=True)) == {
+        0,
+        2,
+        8,
+    }
+
 
 def test_117x34_domain(request):
     domain = PolygonalDomain.from_files(

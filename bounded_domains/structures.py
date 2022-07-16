@@ -120,8 +120,22 @@ class PolygonalDomain:
         return [self.elements[ind] for ind in self._node_containment_dict[vertex_index]]
 
     def adjacent_elements(
-        self, element: Element, shared_edge: bool = False
+        self, element: Element | int, shared_edge: bool = False
     ) -> list[Element]:
+        """The adjacent elements of the specified element.
+
+        Parameters
+        ----------
+        element
+            The element whose neighbors are determined. If an ``int`` is
+            passed, it is assumed to be the index of an element of the domain.
+        shared_edge
+            If True, only elements that share an edge with the specified element
+            are returned. Otherwise (the default behavior) all elements that share
+            at least one vertex are returned.
+        """
+        if isinstance(element, int):
+            element = self.elements[element]
         if shared_edge:
             return self._adjacent_elements_shared_edge_dict[element]
         return self._adjacent_elements_shared_vertex_dict[element]
