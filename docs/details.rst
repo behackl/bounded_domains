@@ -46,7 +46,7 @@ The present implementation of :class:`.PolygonalDomain` relies on
 the passed :class:`.Element` objects describing triangles. Theoretically,
 more complex structures (like quadrilaterals) would be possible too.
 Depending on the concrete use case, the implementation has to be changed
-more or less substantially:
+more or less:
 
 - In case it is only important that users should be able to pass
   quadrilaterals (or general polygons), then I propose implementing
@@ -59,5 +59,6 @@ more or less substantially:
   original element instead of the determined sub-element.
 - Otherwise, if for whatever reason computations have to happen with
   quadrilaterals, then several methods have to be changed substantially
-  -- among them, for example, :meth:`.PolygonalDomain.build_mappings`
-  (for the adjacent vertex mapping, etc.).
+  to handle the more complex situation -- among them, for example,
+  :meth:`.PolygonalDomain.build_mappings` (for the adjacent vertex mapping, etc.),
+  and :meth:`.PolygonalDomain.distance_to_element`.
