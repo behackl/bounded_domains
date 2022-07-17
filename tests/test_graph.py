@@ -140,6 +140,12 @@ def test_graph_2x2():
     assert graph_2x2.size == 2 * 16 + 9
     assert repr(graph_2x2) == "Graph(9 vertices, 41 edges)"
 
+    weighted_graph_2x2 = WeightedGraph(domain)
+    assert repr(weighted_graph_2x2) == "WeightedGraph(9 vertices, 41 edges)"
+    assert set(weighted_graph_2x2._adjacency_matrix.values) == set(
+        [2.0, 4.0, -8.0, -10.0, -14.0, -20.0]
+    )
+
 
 def test_graph_plot(tmp_path):
     domain = PolygonalDomain(*rectangle_domain_data(5, 5))

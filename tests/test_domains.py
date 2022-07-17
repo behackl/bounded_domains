@@ -1,6 +1,7 @@
 from pathlib import Path
 
 import numpy as np
+import pytest
 
 from bounded_domains import (
     Element,
@@ -9,6 +10,16 @@ from bounded_domains import (
     distance_point_on_segment,
     rectangle_domain_data,
 )
+
+
+def test_element():
+    elem = Element(42, [1, 100, 10000])
+    assert repr(elem) == "Element(id=42, vertices=[1, 100, 10000])"
+
+
+def test_element_no_triangle():
+    with pytest.raises(ValueError):
+        elem = Element(42, [1, 2, 3, 4])
 
 
 def test_map_construction_tiny():
@@ -74,6 +85,11 @@ def test_closest_element_randomized():
             assert domain.closest_element(p).id == 1
         if sum(p) < 1:
             assert domain.closest_element(p).id == 0
+
+
+def test_closest_element_compare_all_elements():
+    domain = PolygonalDomain(*rectangle_domain_data(2, 2))
+    assert domain.closest_element([1.1, 0.9], compare_all_elements=True).id == 7
 
 
 def test_3x3_domain(request):

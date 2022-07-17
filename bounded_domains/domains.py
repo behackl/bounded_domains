@@ -13,7 +13,15 @@ from . import logger
 
 
 class Element:
-    """Representation of a (triangular) element."""
+    """Representation of a (triangular) element.
+
+    Parameters
+    ----------
+    id
+        The index of the element.
+    vertices
+        A list of indices of the vertices of this (triangular) element.
+    """
 
     def __init__(self, id: int, vertices: Iterable[int]) -> None:
         self.id = id
@@ -26,7 +34,13 @@ class Element:
         self.vertices = vertices
 
     def __repr__(self):
-        return f"Element(id={self.id}, vertices={self.vertices})"
+        return f"Element(id={self.id}, vertices={sorted(self.vertices)})"
+
+    def __eq__(self, other):
+        return self.id == other.id and self.vertices == other.vertices
+
+    def __hash__(self):
+        return hash((self.id, frozenset(self.vertices)))
 
 
 Node = namedtuple("Node", ["x", "y"])
