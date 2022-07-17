@@ -8,13 +8,17 @@ authors = ["Benjamin Hackl <devel@benjamin-hackl.at>"]
 python = "^3.7"
 scipy = "^1.6"
 matplotlib = "^3.5.2"
-furo = "^2022.6.21"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 black = "^22.6.0"
 flake8 = "^4.0.1"
 Sphinx = "^4"
+pytest-cov = "^3.0.0"
+furo = "^2022.6.21"
+
+[tool.pytest.ini_options]
+addopts = "--cov=bounded_domains --cov-report=term"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
