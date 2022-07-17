@@ -19,7 +19,7 @@ def test_element():
 
 def test_element_no_triangle():
     with pytest.raises(ValueError):
-        elem = Element(42, [1, 2, 3, 4])
+        Element(42, [1, 2, 3, 4])
 
 
 def test_map_construction_tiny():

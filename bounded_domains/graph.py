@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import gzip
 import json
+import matplotlib
+import numpy as np
+
 from pathlib import Path
 from typing import Iterator
 
-import matplotlib
-import numpy as np
 from matplotlib import pyplot as plt
 
 from .domains import PolygonalDomain
