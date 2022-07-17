@@ -3,9 +3,13 @@ from pathlib import Path
 import matplotlib
 import numpy as np
 
-from bounded_domains import Graph, SparseMatrix, WeightedGraph
-from bounded_domains.structures import PolygonalDomain
-from bounded_domains.utils import rectangle_domain_data
+from bounded_domains import (
+    Graph,
+    SparseMatrix,
+    WeightedGraph,
+    PolygonalDomain,
+    rectangle_domain_data,
+)
 
 
 def test_matrix_creation():
