@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from . import logger
-from .structures import Element, Node
+from .domains import Element, Node
 
 
 def read_element_file(file_path: Path | str) -> list[Element]:

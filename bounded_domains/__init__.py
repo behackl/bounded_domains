@@ -11,6 +11,6 @@ logger_consolehandler = logging.StreamHandler()
 logger_consolehandler.setLevel(getattr(logging, os.getenv("LOGLEVEL", "WARNING")))
 logger.addHandler(logger_consolehandler)
 
+from .domains import *
 from .graph import *
-from .structures import *
 from .utils import *

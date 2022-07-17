@@ -11,7 +11,7 @@ import matplotlib
 import numpy as np
 from matplotlib import pyplot as plt
 
-from .structures import PolygonalDomain
+from .domains import PolygonalDomain
 
 
 class SparseMatrix:
