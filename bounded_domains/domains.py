@@ -302,7 +302,7 @@ class PolygonalDomain:
         )
 
 
-def distance_point_on_segment(P: Node, A: Node, B: Node):
+def distance_point_on_segment(P: Node, A: Node, B: Node) -> float:
     """Determines the shortest distance from a point P to a line segment AB.
 
     Parameters
