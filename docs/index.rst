@@ -1,37 +1,10 @@
-bounded\_domains package
-========================
+bounded\_domains documentation
+==============================
 
-Submodules
-----------
+This is a small package for computations with and visualizations
+for triangulations of polygonal domains.
 
-bounded\_domains.graph module
------------------------------
+.. toctree::
 
-.. automodule:: bounded_domains.graph
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bounded\_domains.structures module
-----------------------------------
-
-.. automodule:: bounded_domains.structures
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-bounded\_domains.utils module
------------------------------
-
-.. automodule:: bounded_domains.utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-Module contents
----------------
-
-.. automodule:: bounded_domains
-   :members:
-   :undoc-members:
-   :show-inheritance:
+   details
+   reference

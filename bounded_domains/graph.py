@@ -189,6 +189,11 @@ class SparseMatrix:
     def plot(self, filename: str | Path | None = None) -> None:
         """A plot of this matrix.
 
+        For the weighted adjacency matrix from a domain generated via
+        :func:`.rectangle_domain_data`, the generated plot looks like this:
+
+        .. image:: /_static/demo_plot_matrix.png
+
         Parameters
         ----------
         filename
@@ -249,6 +254,11 @@ class Graph:
             For the sake of visual clarity, the reflexive
             edges are not plotted. For the other edges, their
             color corresponds to their weight.
+
+        This is the sample output for a domain generated via
+        :func:`.rectangle_domain_data`:
+
+        .. image:: /_static/demo_plot_graph.png
 
         Parameters
         ----------
