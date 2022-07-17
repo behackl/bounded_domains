@@ -78,7 +78,15 @@ class PolygonalDomain:
     def from_files(
         element_file_path: str | Path, vertex_file_path: str | Path
     ) -> PolygonalDomain:
-        """Constructs a PolygonalDomain by reading entries from files."""
+        """Constructs a PolygonalDomain by reading entries from files.
+
+        Parameters
+        ----------
+        element_file_path
+            Path of the element file.
+        vertex_file_path
+            Path of the vertex file.
+        """
         from .utils import read_element_file, read_vertex_file
 
         elements = read_element_file(element_file_path)
@@ -127,15 +135,35 @@ class PolygonalDomain:
         logger.debug("Populated node and element adjacency dictionaries.")
 
     def build_node_tree(self, vertices: list[Node]) -> None:
-        """Build auxiliary kd-tree used for distance queries."""
+        """Build auxiliary kd-tree used for distance queries.
+
+        Parameters
+        ----------
+        vertices
+            A list of 2D coordinates.
+        """
         coordinates = np.array([[v.x, v.y] for v in vertices])
         self._node_tree = KDTree(coordinates)
         logger.debug("Coordinate kd-tree has been constructed.")
 
     def vertex(self, node_index: int) -> Node:
+        """The coordinates of a vertex given its index.
+
+        Parameters
+        ----------
+        node_index
+            The index of the vertex whose coordinates are returned.
+        """
         return Node(*self._node_tree.data[node_index])
 
     def elements_containing_vertex(self, vertex_index: int) -> list[Element]:
+        """A list of all elements containing the specified vertex.
+
+        Parameters
+        ----------
+        vertex_index
+            The index of the vertex contained in the returned elements.
+        """
         return [self.elements[ind] for ind in self._node_containment_dict[vertex_index]]
 
     def adjacent_elements(
@@ -160,6 +188,13 @@ class PolygonalDomain:
         return self._adjacent_elements_shared_vertex_dict[element]
 
     def adjacent_vertices(self, vertex_index: int) -> list[int]:
+        """All vertices (by their indices) that are adjacent to this vertex.
+
+        Parameters
+        ----------
+        vertex_index
+            The index of the vertex whose neighboring vertices are returned.
+        """
         return self._adjacent_node_dict[vertex_index]
 
     def distance_to_element(self, node: Node, element_id: int) -> float:
@@ -268,7 +303,17 @@ class PolygonalDomain:
 
 
 def distance_point_on_segment(P: Node, A: Node, B: Node):
-    """Determines the shortest distance from a point P to a line segment AB."""
+    """Determines the shortest distance from a point P to a line segment AB.
+
+    Parameters
+    ----------
+    P
+        The node from which the distance to the segment is determined.
+    A
+        An endpoint of the line segment.
+    B
+        An endpoint of the line segment.
+    """
     p = np.array(P)
     a = np.array(A)
     b = np.array(B)
