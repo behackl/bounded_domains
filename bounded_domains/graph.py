@@ -205,7 +205,7 @@ class SparseMatrix:
             [[self[i, j] for j in range(self.columns)] for i in range(self.rows)],
             cmap="coolwarm",
         )
-        if filename is None:
+        if filename is None:  # pragma: no cover
             plt.show()
         else:
             plt.savefig(filename)
@@ -280,7 +280,7 @@ class Graph:
         plt.plot(self._node_positions[:, 0], self._node_positions[:, 1], "o", c="#000")
         if filename is not None:
             plt.savefig(filename)
-        else:
+        else:  # pragma: no cover
             plt.show()
 
 
