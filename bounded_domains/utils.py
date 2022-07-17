@@ -78,7 +78,7 @@ def read_vertex_file(file_path: Path | str) -> list[Node]:
         return vertices
 
 
-def rectangle_domain_data(m: int, n: int) -> tuple(list[Element], list[Node]):
+def rectangle_domain_data(m: int, n: int) -> tuple[list[Element], list[Node]]:
     """Generate data for a triangulation of the unit square.
 
     Parameters
@@ -90,6 +90,7 @@ def rectangle_domain_data(m: int, n: int) -> tuple(list[Element], list[Node]):
 
     Returns
     -------
+    tuple[list[Element], list[Node]]
         A tuple with the first entry being the list of elements
         and the second entry being the list of nodes required
         to instantiate a :class:`.PolygonalDomain`.
