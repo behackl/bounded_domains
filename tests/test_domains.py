@@ -74,6 +74,13 @@ def test_distance_to_element():
     assert domain.distance_to_element(Node(1, -10), 1) == 10.0
 
 
+def test_distance_to_element2():
+    domain = PolygonalDomain(
+        [Element(0, [0, 1, 2])], [Node(0, 0), Node(2, 1), Node(4, 0)]
+    )
+    assert domain.distance_to_element(Node(6, 4), 0) == np.sqrt(20)
+
+
 def test_closest_element_randomized():
     elements, vertices = rectangle_domain_data(1, 1)
     domain = PolygonalDomain(elements, vertices)

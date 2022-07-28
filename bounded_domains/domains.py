@@ -229,12 +229,13 @@ class PolygonalDomain:
 
         if 0 <= t1 <= 1 and 0 <= t2 <= 1 and t1 + t2 <= 1:  # point inside of triangle
             return 0.0
-        if t1 < 0:  # consider segment AC
-            return distance_point_on_segment(P, A, C)
-        if t2 < 0:  # consider segment AB
-            return distance_point_on_segment(P, A, B)
-        else:  # consider segment BC
-            return distance_point_on_segment(P, B, C)
+        # in terms of performance, this could be improved by careful case
+        # distinction with respect to the values of t1 and t2.
+        return min(
+            distance_point_on_segment(P, A, C),
+            distance_point_on_segment(P, A, B),
+            distance_point_on_segment(P, B, C),
+        )
 
     def closest_vertex(self, node: Node) -> int:
         """Determines a closest vertex to the specified node.
